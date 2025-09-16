@@ -68,3 +68,31 @@ model WorkExperience {
   description String?
   student     StudentAccount @relation(fields: [studentId], references: [id])
 }
+
+model CompanyProfile {
+  id             String  @id @default(uuid())
+  firstName      String
+  lastName       String
+  role           String
+  gender         String
+  companyName    String
+  companyEmail   String  @unique
+  companyWebsite String
+  headquarters   String
+  founded        String
+  companySize    String
+  industry       String
+  facebook       String?
+  linkedin       String?
+  instagram      String?
+  twitter        String?
+  glassdoor      String?
+  companyTagline String
+  about          String?
+
+  profilePicture Json?
+  bannerImage    Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

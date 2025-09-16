@@ -4,13 +4,14 @@ import ErrorHandler from "../utils/errorHandler.js";
 import initImageKit from "../utils/imageKit.js";
 import path from "path";
 const imageKit = initImageKit();
+
 export const createStudent = catchAsyncErrors(async (req, res, next) => {
   const {
     firstName,
     lastName,
     gender,
-    // anonymous = false,
-    // lookingForWork = false,
+    anonymous = false,
+    lookingForWork = false,
     expectedSalary,
     hourlyRate,
     location,

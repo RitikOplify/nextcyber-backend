@@ -8,6 +8,8 @@ import ErrorHandler from "./utils/errorHandler.js";
 import adminRoute from "./routes/adminRoutes.js";
 import authRoute from "./routes/authRoutes.js";
 import studentRoute from "./routes/studentRoute.js";
+import companyRoute from "./routes/companyRoute.js";
+
 import fileUpload from "express-fileupload";
 
 const app = express();
@@ -47,6 +49,7 @@ app.get("/", (req, res) => {
 app.use("/admin", adminRoute);
 app.use("/auth", authRoute);
 app.use("/student", studentRoute);
+app.use("/company", companyRoute);
 
 app.all("*", (req, res, next) => {
   next(new ErrorHandler(`Requested URL Not Found`, 404));
