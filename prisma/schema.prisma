@@ -34,8 +34,8 @@ model StudentAccount {
   gender         String?
   anonymous      Boolean  @default(false)
   lookingForWork Boolean  @default(false)
-  expectedSalary String?
-  hourlyRate     String?
+  expectedSalary Float?
+  hourlyRate     Float?
   nationalities  String[]
   languages      String[]
 

@@ -10,8 +10,8 @@ export const createStudent = catchAsyncErrors(async (req, res, next) => {
     firstName,
     lastName,
     gender,
-    anonymous = false,
-    lookingForWork = false,
+    anonymous,
+    lookingForWork,
     expectedSalary,
     hourlyRate,
     location,
@@ -26,9 +26,50 @@ export const createStudent = catchAsyncErrors(async (req, res, next) => {
     workExperience,
   } = req.body;
 
-  console.log(req.body);
+  // Helper function to safely parse JSON strings
+  const safeJsonParse = (str) => {
+    if (!str) return [];
+    if (Array.isArray(str)) return str;
+    try {
+      return JSON.parse(str);
+    } catch (error) {
+      console.error("JSON parse error:", error);
+      return [];
+    }
+  };
+
+  // Helper function to parse boolean strings
+  const parseBoolean = (value) => {
+    if (typeof value === "boolean") return value;
+    if (typeof value === "string") {
+      return value.toLowerCase() === "true";
+    }
+    return false;
+  };
+
+  // Parse all JSON strings and booleans
+  const parsedNationalities = safeJsonParse(nationalities);
+  const parsedLanguage = safeJsonParse(language);
+  const parsedCertificates = safeJsonParse(certificates);
+  const parsedSkills = safeJsonParse(skills);
+  const parsedEducation = safeJsonParse(education);
+  const parsedWorkExperience = safeJsonParse(workExperience);
+  const parsedAnonymous = parseBoolean(anonymous);
+  const parsedLookingForWork = parseBoolean(lookingForWork);
+
+  console.log("Parsed education:", parsedEducation);
+  console.log("Parsed work experience:", parsedWorkExperience);
 
   const { profilePicture, resume } = req.files;
+
+  // Check if files exist
+  if (!profilePicture) {
+    return next(new ErrorHandler("Profile picture is required", 400));
+  }
+  if (!resume) {
+    return next(new ErrorHandler("Resume is required", 400));
+  }
+
   const modifiedProfileName = `profile-${Date.now()}${path.extname(
     profilePicture.name
   )}`;
@@ -50,45 +91,63 @@ export const createStudent = catchAsyncErrors(async (req, res, next) => {
       firstName,
       lastName,
       gender,
-      // anonymous,
-      // lookingForWork,
-      expectedSalary,
-      hourlyRate,
+      anonymous: parsedAnonymous,
+      lookingForWork: parsedLookingForWork,
+      expectedSalary: expectedSalary ? parseFloat(expectedSalary) : null,
+      hourlyRate: hourlyRate ? parseFloat(hourlyRate) : null,
       location,
       currency,
-      nationalities,
-      languages: language,
+      nationalities: parsedNationalities,
+      languages: parsedLanguage,
       profilePicture: { url: profile, fileId: profileFileId },
       resume: { url: resumeUrl, fileId: resumeFileId },
       contractType,
       remotePolicy,
-      certificates,
-      skills,
-      education: education
-        ? {
-            create: education.map((ed) => ({
-              institute: ed.institute,
-              level: ed.level,
-              startDate: new Date(ed.startDate),
-              endDate: ed.endDate ? new Date(ed.endDate) : null,
-            })),
-          }
-        : undefined,
-      workExperience: workExperience
-        ? {
-            create: workExperience.map((work) => ({
-              jobTitle: work.jobTitle,
-              companyName: work.companyName,
-              startDate: new Date(work.startDate),
-              endDate: work.endDate ? new Date(work.endDate) : null,
-              description: work.description || null,
-            })),
-          }
-        : undefined,
+      certificates: parsedCertificates,
+      skills: parsedSkills,
+
+      // Handle education array
+      education:
+        parsedEducation.length > 0
+          ? {
+              create: parsedEducation.map((ed) => ({
+                institute: ed.institute,
+                level: ed.level,
+                startDate: new Date(ed.startDate),
+                endDate: ed.endDate ? new Date(ed.endDate) : null,
+              })),
+            }
+          : undefined,
+
+      // Handle work experience array
+      workExperience:
+        parsedWorkExperience.length > 0
+          ? {
+              create: parsedWorkExperience.map((work) => ({
+                jobTitle: work.jobTitle,
+                companyName: work.companyName,
+                startDate: new Date(work.startDate),
+                endDate: work.endDate ? new Date(work.endDate) : null,
+                description: work.description || null,
+              })),
+            }
+          : undefined,
+    },
+    include: {
+      education: true,
+      workExperience: true,
     },
   });
 
-  return res.status(201).json({ success: true, student });
+  if (!student) {
+    return next(new ErrorHandler("Failed to add student", 404));
+  }
+
+  return res.status(201).json({
+    success: true,
+    message: "Student created successfully",
+    student,
+  });
 });
 
 export const getStudentById = catchAsyncErrors(async (req, res, next) => {
