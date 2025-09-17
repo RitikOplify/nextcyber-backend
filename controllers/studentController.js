@@ -26,9 +26,9 @@ export const createStudent = catchAsyncErrors(async (req, res, next) => {
     workExperience,
   } = req.body;
 
-  const { profilePicture, resume } = req.files;
-  console.log(profilePicture, resume);
+  console.log(req.body);
 
+  const { profilePicture, resume } = req.files;
   const modifiedProfileName = `profile-${Date.now()}${path.extname(
     profilePicture.name
   )}`;
@@ -91,9 +91,27 @@ export const createStudent = catchAsyncErrors(async (req, res, next) => {
   return res.status(201).json({ success: true, student });
 });
 
+export const getStudentById = catchAsyncErrors(async (req, res, next) => {
+  const student = await prisma.studentAccount.findFirst({
+    where: { id: req.params.id },
+    include: {
+      education: true,
+      workExperience: true,
+    },
+  });
+
+  if (!student) {
+    return next(new ErrorHandler("Student not found", 404));
+  }
+
+  res.status(200).json({
+    message: "Student fetched!",
+    student,
+  });
+});
+
 export const getStudent = catchAsyncErrors(async (req, res, next) => {
   const student = await prisma.studentAccount.findMany();
-
   res.status(200).json({
     message: "Student fetched!",
     student: student,
