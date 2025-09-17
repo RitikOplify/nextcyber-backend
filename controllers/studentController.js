@@ -170,9 +170,33 @@ export const getStudentById = catchAsyncErrors(async (req, res, next) => {
 });
 
 export const getStudent = catchAsyncErrors(async (req, res, next) => {
-  const student = await prisma.studentAccount.findMany();
+  const student = await prisma.studentAccount.findMany({
+    where: { isDeleted: false },
+  });
   res.status(200).json({
     message: "Student fetched!",
     student: student,
+  });
+});
+
+export const deleteStudent = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  const existingStudent = await prisma.studentAccount.findFirst({
+    where: { id },
+  });
+
+  if (!existingStudent) {
+    return next(new ErrorHandler("Student not found", 404));
+  }
+
+  const deletedStudent = await prisma.studentAccount.update({
+    where: { id },
+    data: { isDeleted: true },
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Student deleted successfully",
+    student: deletedStudent,
   });
 });

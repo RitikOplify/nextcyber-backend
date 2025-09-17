@@ -27,6 +27,7 @@ model StudentAccount {
   id             String   @id @default(uuid())
   profilePicture Json?
   isActive       Status?  @default(ACTIVE)
+  isDeleted      Boolean  @default(false)
   firstName      String
   lastName       String
   location       String
