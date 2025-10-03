@@ -13,49 +13,55 @@ enum Status {
 }
 
 model Admin {
-  id           String   @id @default(uuid())
-  fullName     String
-  email        String   @unique
-  mobile       String   @unique
-  role         String   @default("admin")
-  refreshToken Json?
-  password     String
-  createdAt    DateTime @default(now())
+  id                  String    @id @default(uuid())
+  fullName            String
+  email               String    @unique
+  mobile              String    @unique
+  resetPasswordToken  String?
+  resetPasswordExpire DateTime?
+  role                String    @default("admin")
+  refreshToken        Json?
+  password            String
+  createdAt           DateTime  @default(now())
 }
 
 model Recruiter {
-  id             String  @id @default(uuid())
-  profilePicture Json?
-  isActive       Status? @default(ACTIVE)
-  isDeleted      Boolean @default(false)
-  refreshToken   Json?
-  firstName      String
-  role           String  @default("recruiter")
-  lastName       String
-  password       String?
-  email          String  @unique
+  id                  String    @id @default(uuid())
+  profilePicture      Json?
+  isActive            Status?   @default(ACTIVE)
+  isDeleted           Boolean   @default(false)
+  resetPasswordToken  String?
+  resetPasswordExpire DateTime?
+  refreshToken        Json?
+  firstName           String
+  role                String    @default("recruiter")
+  lastName            String
+  password            String?
+  email               String    @unique
 }
 
 model StudentAccount {
-  id             String @id @default(uuid())
-  profilePicture Json?
-  refreshToken   Json?
-  isActive       Status?  @default(ACTIVE)
-  isDeleted      Boolean  @default(false)
-  role           String   @default("candidate")
-  firstName      String
-  lastName       String
-  password       String?
-  email          String   @unique
-  location       String?
-  currency       String?
-  gender         String?
-  anonymous      Boolean  @default(false)
-  lookingForWork Boolean  @default(false)
-  expectedSalary Float?
-  hourlyRate     Float?
-  nationalities  String[]
-  languages      String[]
+  id                  String    @id @default(uuid())
+  profilePicture      Json?
+  refreshToken        Json?
+  isActive            Status?   @default(ACTIVE)
+  isDeleted           Boolean   @default(false)
+  role                String    @default("candidate")
+  resetPasswordToken  String?
+  resetPasswordExpire DateTime?
+  firstName           String
+  lastName            String
+  password            String?
+  email               String    @unique
+  location            String?
+  currency            String?
+  gender              String?
+  anonymous           Boolean   @default(false)
+  lookingForWork      Boolean   @default(false)
+  expectedSalary      Float?
+  hourlyRate          Float?
+  nationalities       String[]
+  languages           String[]
 
   education      Education[]
   workExperience WorkExperience[]

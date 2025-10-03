@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import prisma from "../config/prisma.js";
 import generateTokens from "../utils/generateToken.js";
 import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
@@ -9,10 +10,12 @@ import {
   refreshTokenOption,
 } from "../utils/cookieOptions.js";
 import {
-  signInSchema,
+  passwordSchema,
   userSignInSchema,
   userSignUpSchema,
 } from "../schema/authSchemas.js";
+import generateResetToken from "../utils/resetToken.js";
+import { sendEmail } from "../utils/sendMail.js";
 
 export const signUp = catchAsyncErrors(async (req, res, next) => {
   const result = userSignUpSchema.safeParse(req.body);
@@ -237,6 +240,151 @@ export const refreshTokens = catchAsyncErrors(async (req, res, next) => {
       success: true,
       message: "Token Refreshed successfully!",
     });
+});
+
+export const forgotPassword = catchAsyncErrors(async (req, res, next) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return next(new ErrorHandler("Please provide an email", 400));
+  }
+
+  // Check candidate first, then recruiter
+  let user = await prisma.studentAccount.findUnique({ where: { email } });
+  if (!user) {
+    user = await prisma.recruiter.findUnique({ where: { email } });
+  }
+
+  if (!user) {
+    return next(new ErrorHandler("User not found with this email", 404));
+  }
+
+  // Generate token
+  const { resetToken, hashedToken } = generateResetToken(user.id);
+
+  // Update user with token and expiration (15 minutes)
+  if (user.role === "candidate") {
+    await prisma.studentAccount.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordToken: hashedToken,
+        resetPasswordExpire: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+  } else {
+    await prisma.recruiter.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordToken: hashedToken,
+        resetPasswordExpire: new Date(Date.now() + 15 * 60 * 1000),
+      },
+    });
+  }
+
+  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+  const message = `
+    You requested a password reset.\n\n
+    Please click on the link below or paste it into your browser to complete the process:\n\n
+    ${resetUrl}\n\n
+    If you did not request this, please ignore this email.
+  `;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Password Reset Request",
+      message,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Password reset link sent to ${user.email}`,
+    });
+  } catch (error) {
+    console.error(error);
+
+    // Rollback token if email sending fails
+    if (user.role === "candidate") {
+      await prisma.studentAccount.update({
+        where: { id: user.id },
+        data: { resetPasswordToken: null, resetPasswordExpire: null },
+      });
+    } else {
+      await prisma.recruiter.update({
+        where: { id: user.id },
+        data: { resetPasswordToken: null, resetPasswordExpire: null },
+      });
+    }
+
+    return next(
+      new ErrorHandler("Email could not be sent, try again later", 500)
+    );
+  }
+});
+
+export const resetPassword = catchAsyncErrors(async (req, res, next) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  // Validate password
+  const result = passwordSchema.safeParse(password);
+  if (!result.success) {
+    return next(new ErrorHandler(result.error.errors[0].message, 400));
+  }
+
+  // Hash the token to match stored token
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  // Find user with valid token and not expired
+  let user = await prisma.studentAccount.findFirst({
+    where: {
+      resetPasswordToken: hashedToken,
+      resetPasswordExpire: { gte: new Date() },
+    },
+  });
+
+  if (!user) {
+    user = await prisma.recruiter.findFirst({
+      where: {
+        resetPasswordToken: hashedToken,
+        resetPasswordExpire: { gte: new Date() },
+      },
+    });
+  }
+
+  if (!user) {
+    return next(new ErrorHandler("Invalid or expired reset token", 400));
+  }
+
+  // Hash new password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Update password and clear token/expiration
+  if (user.role === "candidate") {
+    await prisma.studentAccount.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordExpire: null,
+      },
+    });
+  } else {
+    await prisma.recruiter.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordExpire: null,
+      },
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Password has been reset successfully",
+  });
 });
 
 export const signOut = catchAsyncErrors(async (req, res, next) => {
