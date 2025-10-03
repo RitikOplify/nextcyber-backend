@@ -23,15 +23,32 @@ model Admin {
   createdAt    DateTime @default(now())
 }
 
-model StudentAccount {
-  id             String   @id @default(uuid())
+model Recruiter {
+  id             String  @id @default(uuid())
   profilePicture Json?
+  isActive       Status? @default(ACTIVE)
+  isDeleted      Boolean @default(false)
+  refreshToken   Json?
+  firstName      String
+  role           String  @default("recruiter")
+  lastName       String
+  password       String?
+  email          String  @unique
+}
+
+model StudentAccount {
+  id             String @id @default(uuid())
+  profilePicture Json?
+  refreshToken   Json?
   isActive       Status?  @default(ACTIVE)
   isDeleted      Boolean  @default(false)
+  role           String   @default("candidate")
   firstName      String
   lastName       String
-  location       String
-  currency       String
+  password       String?
+  email          String   @unique
+  location       String?
+  currency       String?
   gender         String?
   anonymous      Boolean  @default(false)
   lookingForWork Boolean  @default(false)
