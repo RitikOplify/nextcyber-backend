@@ -16,11 +16,7 @@ const app = express();
 
 configDotenv({ path: "./.env" });
 
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  "http://localhost:3000",
-  "http://192.168.1.33:3000",
-];
+const allowedOrigins = [process.env.ADMIN_URL, process.env.CLIENT_URL];
 
 const corsOptions = {
   origin: (origin, callback) => {
