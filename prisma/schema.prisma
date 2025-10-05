@@ -38,6 +38,8 @@ model Recruiter {
   lastName            String
   password            String?
   email               String    @unique
+  jobs                JobPost[]
+  company             CompanyProfile? 
 }
 
 model StudentAccount {
@@ -122,6 +124,9 @@ model CompanyProfile {
   profilePicture Json?
   bannerImage    Json?
 
+  recruiterId    String @unique
+  recruiter      Recruiter  @relation(fields: [recruiterId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -156,4 +161,56 @@ enum BillingCycle {
 enum PlanUserType {
   recruiter
   candidate
+}
+
+model JobPost {
+  id                  String     @id @default(uuid())
+  title               String     @db.VarChar(100)
+  description         String
+  minExperience       Int
+  maxExperience       Int
+  contractType        ContractType
+  remotePolicy        RemotePolicy
+  languageRequired    String[]
+  minSalary           Int?
+  maxSalary           Int?
+  currency            String?    @db.VarChar(10)
+  showSalary          Boolean    @default(true)
+  qualification       Qualification
+  genderPreference    GenderPreference
+  skills              String[]
+  certifications      String[]
+  location            String
+  additionalBenefits  String[]
+  active              Boolean    @default(true)
+  recruiterId         String
+  recruiter           Recruiter  @relation(fields: [recruiterId], references: [id])
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+}
+
+enum ContractType {
+  FREELANCE
+  INTERNSHIP
+  TEMPORARY_CONTRACT
+  PERMANENT_CONTRACT
+}
+
+enum RemotePolicy {
+  ONSITE
+  HYBRID
+  REMOTE
+}
+
+enum Qualification {
+  HIGH_SCHOOL
+  ASSOCIATE_DEGREE
+  BACHELORS_DEGREE
+  MASTERS_DEGREE
+}
+
+enum GenderPreference {
+  ANY
+  MALE
+  FEMALE
 }
