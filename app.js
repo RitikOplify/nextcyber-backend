@@ -6,6 +6,7 @@ import Logger from "morgan";
 import generatedErrors from "./middlewares/errors.js";
 import ErrorHandler from "./utils/errorHandler.js";
 import adminRoute from "./routes/adminRoutes.js";
+import planRoute from "./routes/planRoute.js";
 import authRoute from "./routes/authRoutes.js";
 import studentRoute from "./routes/studentRoute.js";
 import companyRoute from "./routes/companyRoute.js";
@@ -46,6 +47,7 @@ app.use("/admin", adminRoute);
 app.use("/auth", authRoute);
 app.use("/student", studentRoute);
 app.use("/company", companyRoute);
+app.use("/plan", planRoute);
 
 app.all("*", (req, res, next) => {
   next(new ErrorHandler(`Requested URL Not Found`, 404));

@@ -125,3 +125,35 @@ model CompanyProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Plan {
+  id           String       @id @default(uuid())
+  name         String
+  description  String
+  price        Float
+  currency     String       @default("USD")
+  billingCycle BillingCycle @default(MONTHLY)
+  userType     PlanUserType
+  tag          String?
+  ctaText      String
+  features     Feature[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Feature {
+  id     String  @id @default(uuid())
+  text   String
+  Plan   Plan?   @relation(fields: [planId], references: [id])
+  planId String?
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+enum PlanUserType {
+  recruiter
+  candidate
+}
