@@ -200,3 +200,36 @@ export const deleteStudent = catchAsyncErrors(async (req, res, next) => {
     student: deletedStudent,
   });
 });
+
+export const updateStudentOnboarding = catchAsyncErrors(
+  async (req, res, next) => {
+    const { id } = req.params;
+    const { hearFrom } = req.body;
+    const existingStudent = await prisma.studentAccount.findFirst({
+      where: { id },
+    });
+
+    if (!existingStudent) {
+      return next(new ErrorHandler("Student not found", 404));
+    }
+
+    const student = await prisma.studentAccount.update({
+      where: { id },
+      data: { onboarding: true, hearFrom },
+    });
+
+    const {
+      password: _pw,
+      createdAt: _ca,
+      updatedAt: _ua,
+      refreshToken: _rt,
+      ...sanitizedUser
+    } = student;
+
+    res.status(200).json({
+      success: true,
+      message: "Student Updated successfully",
+      student: sanitizedUser,
+    });
+  }
+);

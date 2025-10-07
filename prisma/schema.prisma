@@ -26,20 +26,20 @@ model Admin {
 }
 
 model Recruiter {
-  id                  String    @id @default(uuid())
+  id                  String          @id @default(uuid())
   profilePicture      Json?
-  isActive            Status?   @default(ACTIVE)
-  isDeleted           Boolean   @default(false)
+  isActive            Status?         @default(ACTIVE)
+  isDeleted           Boolean         @default(false)
   resetPasswordToken  String?
   resetPasswordExpire DateTime?
   refreshToken        Json?
   firstName           String
-  role                String    @default("recruiter")
+  role                String          @default("recruiter")
   lastName            String
   password            String?
-  email               String    @unique
+  email               String          @unique
   jobs                JobPost[]
-  company             CompanyProfile? 
+  company             CompanyProfile?
 }
 
 model StudentAccount {
@@ -49,6 +49,8 @@ model StudentAccount {
   isActive            Status?   @default(ACTIVE)
   isDeleted           Boolean   @default(false)
   role                String    @default("candidate")
+  hearFrom            String?
+  onboarding          Boolean   @default(false)
   resetPasswordToken  String?
   resetPasswordExpire DateTime?
   firstName           String
@@ -124,8 +126,8 @@ model CompanyProfile {
   profilePicture Json?
   bannerImage    Json?
 
-  recruiterId    String @unique
-  recruiter      Recruiter  @relation(fields: [recruiterId], references: [id])
+  recruiterId String    @unique
+  recruiter   Recruiter @relation(fields: [recruiterId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -164,29 +166,29 @@ enum PlanUserType {
 }
 
 model JobPost {
-  id                  String     @id @default(uuid())
-  title               String     @db.VarChar(100)
-  description         String
-  minExperience       Int
-  maxExperience       Int
-  contractType        ContractType
-  remotePolicy        RemotePolicy
-  languageRequired    String[]
-  minSalary           Int?
-  maxSalary           Int?
-  currency            String?    @db.VarChar(10)
-  showSalary          Boolean    @default(true)
-  qualification       Qualification
-  genderPreference    GenderPreference
-  skills              String[]
-  certifications      String[]
-  location            String
-  additionalBenefits  String[]
-  active              Boolean    @default(true)
-  recruiterId         String
-  recruiter           Recruiter  @relation(fields: [recruiterId], references: [id])
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
+  id                 String           @id @default(uuid())
+  title              String           @db.VarChar(100)
+  description        String
+  minExperience      Int
+  maxExperience      Int
+  contractType       ContractType
+  remotePolicy       RemotePolicy
+  languageRequired   String[]
+  minSalary          Int?
+  maxSalary          Int?
+  currency           String?          @db.VarChar(10)
+  showSalary         Boolean          @default(true)
+  qualification      Qualification
+  genderPreference   GenderPreference
+  skills             String[]
+  certifications     String[]
+  location           String
+  additionalBenefits String[]
+  active             Boolean          @default(true)
+  recruiterId        String
+  recruiter          Recruiter        @relation(fields: [recruiterId], references: [id])
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 }
 
 enum ContractType {
