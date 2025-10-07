@@ -10,6 +10,7 @@ import planRoute from "./routes/planRoute.js";
 import authRoute from "./routes/authRoutes.js";
 import studentRoute from "./routes/studentRoute.js";
 import companyRoute from "./routes/companyRoute.js";
+import jobRoute from "./routes/jobRoutes.js";
 
 import fileUpload from "express-fileupload";
 
@@ -48,6 +49,7 @@ app.use("/auth", authRoute);
 app.use("/student", studentRoute);
 app.use("/company", companyRoute);
 app.use("/plan", planRoute);
+app.use("/job", jobRoute);
 
 app.all("*", (req, res, next) => {
   next(new ErrorHandler(`Requested URL Not Found`, 404));
