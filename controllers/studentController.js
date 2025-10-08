@@ -201,35 +201,130 @@ export const deleteStudent = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-export const updateStudentOnboarding = catchAsyncErrors(
-  async (req, res, next) => {
-    const { id } = req.params;
-    const { hearFrom } = req.body;
-    const existingStudent = await prisma.studentAccount.findFirst({
-      where: { id },
-    });
+export const studentOnboarding = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
 
-    if (!existingStudent) {
-      return next(new ErrorHandler("Student not found", 404));
+  const {
+    hearFrom,
+    gender,
+    nationalities,
+    location,
+    languages,
+    currency,
+    contractType,
+    remotePolicy,
+    certificates,
+    skills,
+  } = req.body;
+
+  // Helper function to safely parse JSON strings
+  const safeJsonParse = (str) => {
+    if (!str) return [];
+    if (Array.isArray(str)) return str;
+    try {
+      return JSON.parse(str);
+    } catch (error) {
+      console.error("JSON parse error:", error);
+      return [];
     }
+  };
 
-    const student = await prisma.studentAccount.update({
-      where: { id },
-      data: { onboarding: true, hearFrom },
+  // Parse all JSON strings (for arrays sent as JSON)
+  const parsedNationalities = safeJsonParse(nationalities);
+  const parsedLanguages = safeJsonParse(languages);
+  const parsedCertificates = safeJsonParse(certificates);
+  const parsedSkills = safeJsonParse(skills);
+
+  // Handle file upload
+  let profilePictureData = null;
+
+  if (req.files && req.files.profilePicture) {
+    const { profilePicture } = req.files;
+
+    const modifiedProfileName = `profile-${Date.now()}${path.extname(
+      profilePicture.name
+    )}`;
+
+    const { fileId: profileFileId, url: profileUrl } = await imageKit.upload({
+      file: profilePicture.data,
+      fileName: modifiedProfileName,
     });
 
-    const {
-      password: _pw,
-      createdAt: _ca,
-      updatedAt: _ua,
-      refreshToken: _rt,
-      ...sanitizedUser
-    } = student;
-
-    res.status(200).json({
-      success: true,
-      message: "Student Updated successfully",
-      student: sanitizedUser,
-    });
+    profilePictureData = {
+      url: profileUrl,
+      fileId: profileFileId,
+    };
   }
-);
+
+  // Validate required fields
+  if (!hearFrom) {
+    return next(new ErrorHandler("Please tell us how you heard about us", 400));
+  }
+
+  if (!gender) {
+    return next(new ErrorHandler("Gender preference is required", 400));
+  }
+
+  if (!parsedNationalities.length) {
+    return next(new ErrorHandler("At least one nationality is required", 400));
+  }
+
+  if (!location) {
+    return next(new ErrorHandler("Location is required", 400));
+  }
+
+  if (!parsedLanguages.length) {
+    return next(new ErrorHandler("At least one language is required", 400));
+  }
+
+  if (!currency) {
+    return next(new ErrorHandler("Currency is required", 400));
+  }
+
+  if (!contractType) {
+    return next(new ErrorHandler("Contract type is required", 400));
+  }
+
+  if (!remotePolicy) {
+    return next(new ErrorHandler("Remote policy is required", 400));
+  }
+
+  if (!parsedCertificates.length) {
+    return next(new ErrorHandler("At least one certificate is required", 400));
+  }
+
+  if (!parsedSkills.length) {
+    return next(new ErrorHandler("At least one skill is required", 400));
+  }
+
+  // Update student with onboarding data
+  const student = await prisma.studentAccount.update({
+    where: {
+      id: id,
+    },
+    data: {
+      hearFrom,
+      gender,
+      nationalities: parsedNationalities,
+      location,
+      languages: parsedLanguages,
+      currency,
+      contractType,
+      remotePolicy,
+      certificates: parsedCertificates,
+      skills: parsedSkills,
+      ...(profilePictureData && { profilePicture: profilePictureData }),
+      onboarding: true,
+    },
+  });
+
+  if (!student) {
+    return next(new ErrorHandler("Failed to update student profile", 404));
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Onboarding completed successfully",
+    student,
+  });
+});
