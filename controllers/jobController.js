@@ -21,7 +21,7 @@ export const createJob = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: `Job created successfully under ${recruiter.company.companyName}`,
+      message: `Job created successfully under ${recruiter?.company?.companyName}`,
       jobPost,
     });
   } catch (error) {
@@ -64,7 +64,7 @@ export const getAllJobs = async (req, res) => {
 
     res.json({
       success: true,
-      company: recruiter.company.companyName,
+      // company: recruiter.company.companyName,
       currentPage: page,
       totalPages: Math.ceil(totalJobs / limit),
       totalJobs,
