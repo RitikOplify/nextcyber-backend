@@ -90,7 +90,7 @@ export const getAllJobs = async (req, res) => {
 
     const totalJobs = await prisma.jobPost.count();
 
-    const jobPosts = await prisma.jobPost.find({
+    const jobPosts = await prisma.jobPost.findMany({
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
