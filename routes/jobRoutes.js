@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post("/create-job", authMiddleware, recruiterMiddleware, createJob);
 
-router.get("/get-all-job", authMiddleware, recruiterMiddleware, getAllJobs);
+router.get("/get-all-jobs", authMiddleware, recruiterMiddleware, getAllJobs);
 
 router.get("/get-job", authMiddleware, recruiterMiddleware, getJob);
 

@@ -49,15 +49,15 @@ export const recruiterMiddleware = catchAsyncErrors(async (req, _, next) => {
     );
   }
 
-  // 4️⃣ Ensure recruiter has a company before performing job-related actions
-  if (!recruiter.company) {
-    return next(
-      new ErrorHandler(
-        "Please complete your company profile before continuing.",
-        403
-      )
-    );
-  }
+  // // 4️⃣ Ensure recruiter has a company before performing job-related actions
+  // if (!recruiter.company) {
+  //   return next(
+  //     new ErrorHandler(
+  //       "Please complete your company profile before continuing.",
+  //       403
+  //     )
+  //   );
+  // }
 
   // 5️⃣ Attach recruiter data to request for use in routes
   req.recruiter = recruiter;
