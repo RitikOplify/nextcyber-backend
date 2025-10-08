@@ -40,6 +40,46 @@ export const createJob = async (req, res) => {
 /**
  * ✅ Get All Jobs — only jobs from the recruiter’s company
  */
+// export const getAllJobs = async (req, res) => {
+//   try {
+//     const recruiter = req.recruiter;
+
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 10;
+//     const skip = (page - 1) * limit;
+
+//     const totalJobs = await prisma.jobPost.count({
+//       where: { recruiterId: recruiter.id, active: true },
+//     });
+
+//     const jobPosts = await prisma.jobPost.findMany({
+//       where: { recruiterId: recruiter.id, active: true },
+//       skip,
+//       take: limit,
+//       orderBy: { createdAt: "desc" },
+//       include: {
+//         recruiter: { include: { company: true } },
+//       },
+//     });
+
+//     res.json({
+//       success: true,
+//       // company: recruiter.company.companyName,
+//       currentPage: page,
+//       totalPages: Math.ceil(totalJobs / limit),
+//       totalJobs,
+//       hasNextPage: page * limit < totalJobs,
+//       hasPrevPage: page > 1,
+//       jobPosts,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Failed to fetch job posts" });
+//   }
+// };
+
 export const getAllJobs = async (req, res) => {
   try {
     const recruiter = req.recruiter;
@@ -48,12 +88,9 @@ export const getAllJobs = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    const totalJobs = await prisma.jobPost.count({
-      where: { recruiterId: recruiter.id, active: true },
-    });
+    const totalJobs = await prisma.jobPost.count();
 
-    const jobPosts = await prisma.jobPost.findMany({
-      where: { recruiterId: recruiter.id, active: true },
+    const jobPosts = await prisma.jobPost.find({
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
