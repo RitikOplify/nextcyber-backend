@@ -79,6 +79,14 @@ export const createCompanyProfile = catchAsyncErrors(async (req, res, next) => {
       about,
       profilePicture: profileData,
       bannerImage: bannerData,
+      recruiter: {
+        create: {
+          firstName: firstName,
+          lastName: lastName,
+          email: companyEmail,
+          role: role,
+        },
+      },
     },
   });
 

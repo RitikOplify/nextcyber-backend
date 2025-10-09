@@ -37,7 +37,7 @@ model Recruiter {
   role                String          @default("recruiter")
   lastName            String
   password            String?
-  email               String          @unique
+  email               String?
   jobs                JobPost[]
   company             CompanyProfile?
 }
