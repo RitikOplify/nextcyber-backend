@@ -18,7 +18,11 @@ const app = express();
 
 configDotenv({ path: "./.env" });
 
-const allowedOrigins = [process.env.ADMIN_URL, process.env.CLIENT_URL];
+const allowedOrigins = [
+  process.env.ADMIN_URL,
+  process.env.CLIENT_URL,
+  "http://localhost:3001",
+];
 
 const corsOptions = {
   origin: (origin, callback) => {

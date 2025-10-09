@@ -56,7 +56,7 @@ model StudentAccount {
   firstName           String
   lastName            String
   password            String?
-  email               String    @unique
+  email               String?
   location            String?
   currency            String?
   gender              String?
