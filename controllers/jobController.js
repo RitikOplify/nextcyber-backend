@@ -1,9 +1,8 @@
 import prisma from "../config/prisma.js";
+import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
 import { jobPostSchema } from "../schema/jobSchema.js";
+import ErrorHandler from "../utils/errorHandler.js";
 
-/**
- * ✅ Create Job — recruiterMiddleware ensures valid recruiter & company
- */
 export const createJob = async (req, res) => {
   try {
     const recruiter = req.recruiter; // Comes from middleware
@@ -242,3 +241,47 @@ export const deleteJob = async (req, res) => {
       .json({ success: false, message: "Error deleting job post" });
   }
 };
+
+export const applyJob = catchAsyncErrors(async (req, res, next) => {
+  const { id } = req.params;
+  const { studentId } = req.body;
+  const jobsExists = await prisma.jobPost.findUnique({
+    where: { id },
+  });
+  if (!jobsExists) {
+    return next(new ErrorHandler("Job Not Found", 404));
+  }
+  const student = await prisma.studentAccount.findUnique({
+    where: { id: studentId },
+  });
+
+  if (!student) {
+    return next(new ErrorHandler("Student Not Found", 404));
+  }
+  // if (!student.resume.url) {
+  //   return next(new ErrorHandler("Please upload your resume to continue", 400));
+  // }
+
+  await prisma.jobPost.update({
+    where: { id },
+    data: { students: { connect: { id: studentId } } },
+  });
+
+  res.status(200).json({ success: false, message: "Job Applied!" });
+});
+
+export const getRecruiterJob = catchAsyncErrors(async (req, res, next) => {
+  const jobs = await prisma.jobPost.findMany({
+    where: { recruiterId: req.user.id },
+    include: {
+      students: true,
+    },
+  });
+
+  console.log(jobs);
+
+  res.status(200).json({
+    jobs,
+    message: "Job Fetched!",
+  });
+});

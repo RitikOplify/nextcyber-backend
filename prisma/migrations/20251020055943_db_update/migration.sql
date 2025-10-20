@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "public"."CompanyProfile" ALTER COLUMN "firstName" DROP NOT NULL,
+ALTER COLUMN "lastName" DROP NOT NULL,
+ALTER COLUMN "companyWebsite" DROP NOT NULL,
+ALTER COLUMN "founded" DROP NOT NULL,
+ALTER COLUMN "companySize" DROP NOT NULL,
+ALTER COLUMN "industry" DROP NOT NULL;

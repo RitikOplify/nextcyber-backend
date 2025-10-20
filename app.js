@@ -11,6 +11,7 @@ import authRoute from "./routes/authRoutes.js";
 import studentRoute from "./routes/studentRoute.js";
 import companyRoute from "./routes/companyRoute.js";
 import jobRoute from "./routes/jobRoutes.js";
+import recruiterRoute from "./routes/recruiterRoutes.js";
 
 import fileUpload from "express-fileupload";
 
@@ -54,6 +55,7 @@ app.use("/student", studentRoute);
 app.use("/company", companyRoute);
 app.use("/plan", planRoute);
 app.use("/job", jobRoute);
+app.use("/recruiter", recruiterRoute);
 
 app.all("*", (req, res, next) => {
   next(new ErrorHandler(`Requested URL Not Found`, 404));

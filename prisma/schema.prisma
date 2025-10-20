@@ -30,8 +30,10 @@ model Recruiter {
   profilePicture      Json?
   isActive            Status?         @default(ACTIVE)
   isDeleted           Boolean         @default(false)
+  onboarding          Boolean         @default(false)
   resetPasswordToken  String?
   resetPasswordExpire DateTime?
+  hearFrom            String?
   refreshToken        Json?
   firstName           String
   role                String          @default("recruiter")
@@ -76,9 +78,11 @@ model StudentAccount {
   remotePolicy String?
   certificates String[]
   skills       String[]
+  jobs         JobPost[] @relation("JobPostToStudents")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  jobPostId String?
 }
 
 model Education {
@@ -104,23 +108,23 @@ model WorkExperience {
 
 model CompanyProfile {
   id             String  @id @default(uuid())
-  firstName      String
-  lastName       String
+  firstName      String?
+  lastName       String?
   role           String
   gender         String
   companyName    String
   companyEmail   String  @unique
-  companyWebsite String
+  companyWebsite String?
   headquarters   String
-  founded        String
-  companySize    String
-  industry       String
+  founded        String?
+  companySize    String?
+  industry       String?
   facebook       String?
   linkedin       String?
   instagram      String?
   twitter        String?
   glassdoor      String?
-  companyTagline String
+  companyTagline String?
   about          String?
 
   profilePicture Json?
@@ -185,6 +189,7 @@ model JobPost {
   location           String
   additionalBenefits String[]
   active             Boolean          @default(true)
+  students           StudentAccount[] @relation("JobPostToStudents")
   recruiterId        String
   recruiter          Recruiter        @relation(fields: [recruiterId], references: [id])
   createdAt          DateTime         @default(now())

@@ -232,7 +232,7 @@ export const studentOnboarding = catchAsyncErrors(async (req, res, next) => {
   // Parse all JSON strings (for arrays sent as JSON)
   const parsedNationalities = safeJsonParse(nationalities);
   const parsedLanguages = safeJsonParse(languages);
-  const parsedCertificates = safeJsonParse(certificates);
+  // const parsedCertificates = safeJsonParse(certificates);
   const parsedSkills = safeJsonParse(skills);
 
   // Handle file upload
@@ -289,9 +289,9 @@ export const studentOnboarding = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Remote policy is required", 400));
   }
 
-  if (!parsedCertificates.length) {
-    return next(new ErrorHandler("At least one certificate is required", 400));
-  }
+  // if (!parsedCertificates.length) {
+  //   return next(new ErrorHandler("At least one certificate is required", 400));
+  // }
 
   if (!parsedSkills.length) {
     return next(new ErrorHandler("At least one skill is required", 400));
@@ -311,7 +311,7 @@ export const studentOnboarding = catchAsyncErrors(async (req, res, next) => {
       currency,
       contractType,
       remotePolicy,
-      certificates: parsedCertificates,
+      // certificates: parsedCertificates,
       skills: parsedSkills,
       ...(profilePictureData && { profilePicture: profilePictureData }),
       onboarding: true,
