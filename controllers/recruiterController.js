@@ -30,12 +30,20 @@ export const recruiterOnboarding = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Invalid company email format", 400));
   }
 
+  const existingRecruiter = await prisma.recruiter.findUnique({
+    where: { id: recruiterId },
+  });
+
+  if (existingRecruiter.onboarding == true) {
+    return next(new ErrorHandler("You have already completed onboarding", 400));
+  }
+
   const existingCompany = await prisma.companyProfile.findFirst({
-    where: { recruiterId },
+    where: { companyEmail: companyEmail },
   });
 
   if (existingCompany) {
-    return next(new ErrorHandler("You have already completed onboarding", 400));
+    return next(new ErrorHandler("Email already in use.", 400));
   }
 
   let profilePictureData = null;
