@@ -157,7 +157,10 @@ export const currentUser = catchAsyncErrors(async (req, res, next) => {
   if (role === "admin") {
     user = await prisma.admin.findFirst({ where: { id } });
   } else if (role === "candidate") {
-    user = await prisma.studentAccount.findFirst({ where: { id } });
+    user = await prisma.studentAccount.findFirst({
+      where: { id },
+      include: { jobs: true },
+    });
   } else if (role === "recruiter") {
     user = await prisma.recruiter.findFirst({ where: { id } });
   }

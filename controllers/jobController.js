@@ -262,12 +262,12 @@ export const applyJob = catchAsyncErrors(async (req, res, next) => {
   //   return next(new ErrorHandler("Please upload your resume to continue", 400));
   // }
 
-  await prisma.jobPost.update({
+  const job = await prisma.jobPost.update({
     where: { id },
     data: { students: { connect: { id: studentId } } },
   });
 
-  res.status(200).json({ success: false, message: "Job Applied!" });
+  res.status(200).json({ success: true, message: "Job Applied!", job });
 });
 
 export const getRecruiterJob = catchAsyncErrors(async (req, res, next) => {
